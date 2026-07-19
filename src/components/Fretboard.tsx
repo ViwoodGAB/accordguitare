@@ -7,9 +7,11 @@ interface FretboardProps {
   playedString: number | null; // For animation trigger
   showRootNote?: boolean;
   rootNote?: string;
+  tuningMidis?: number[]; // accordage effectif (capo inclus) ; standard par défaut
+  compact?: boolean; // masque les légendes du bas (écran Accords mobile)
 }
 
-export const Fretboard = ({ strings, onChange, playedString, showRootNote, rootNote }: FretboardProps) => {
+export const Fretboard = ({ strings, onChange, playedString, showRootNote, rootNote, tuningMidis, compact = false }: FretboardProps) => {
   const totalFrets = 24;
 
   // Handle clicking a fret cell
@@ -88,7 +90,7 @@ export const Fretboard = ({ strings, onChange, playedString, showRootNote, rootN
             {/* 1. Nut Column (Sillet) */}
             <div className="relative border-r-[6px] border-zinc-300/90 h-full flex flex-col justify-between py-2 bg-[#121215]/80">
               {strings.map((fret, stringIdx) => {
-                const noteInfo = getNoteAtFret(stringIdx, fret);
+                const noteInfo = getNoteAtFret(stringIdx, fret, tuningMidis);
                 const isOpen = fret === 0;
                 const isMuted = fret === 'X';
                 const isRoot = showRootNote && rootNote === noteInfo?.pc;
@@ -147,7 +149,7 @@ export const Fretboard = ({ strings, onChange, playedString, showRootNote, rootN
                   {/* String Cells within this fret */}
                   {strings.map((fret, stringIdx) => {
                     const isFrettedHere = fret === fretNum;
-                    const noteInfo = getNoteAtFret(stringIdx, fretNum);
+                    const noteInfo = getNoteAtFret(stringIdx, fretNum, tuningMidis);
 
                     return (
                       <div
@@ -218,7 +220,7 @@ export const Fretboard = ({ strings, onChange, playedString, showRootNote, rootN
         </div>
 
         {/* Fretboard legends */}
-        <div className="flex justify-between items-center mt-3 text-xs text-zinc-500 px-1">
+        <div className={`${compact ? 'hidden' : 'flex'} justify-between items-center mt-3 text-xs text-zinc-500 px-1`}>
           <div className="flex gap-4">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 block"></span> Corde ouverte (O)</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500/10 border border-rose-500/30 block"></span> Corde étouffée (X)</span>
